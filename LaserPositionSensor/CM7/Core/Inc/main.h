@@ -57,6 +57,16 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define DCMI_PWR_EN_Pin GPIO_PIN_14
+#define DCMI_PWR_EN_GPIO_Port GPIOJ
+#define LED1_Pin GPIO_PIN_12
+#define LED1_GPIO_Port GPIOI
+#define LED2_Pin GPIO_PIN_13
+#define LED2_GPIO_Port GPIOI
+#define LED3_Pin GPIO_PIN_14
+#define LED3_GPIO_Port GPIOI
+#define LED4_Pin GPIO_PIN_15
+#define LED4_GPIO_Port GPIOI
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */

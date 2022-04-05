@@ -18,6 +18,8 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "dcmi.h"
+#include "i2c.h"
 #include "usart.h"
 #include "gpio.h"
 
@@ -128,6 +130,8 @@ Error_Handler();
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_USART1_UART_Init();
+  MX_DCMI_Init();
+  MX_I2C4_Init();
   /* USER CODE BEGIN 2 */
 
   int x = 0;
@@ -136,11 +140,18 @@ Error_Handler();
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  while (1)
-  {
-	  x++;
-	  printf("Variable value: %d\n", x);
-	  HAL_Delay(100);
+	while (1)
+	{
+		x++;
+		printf("Variable value: %d\n", x);
+		HAL_Delay(1000);
+		HAL_GPIO_TogglePin(LED1_GPIO_Port, LED1_Pin);
+		HAL_Delay(1000);
+		HAL_GPIO_TogglePin(LED2_GPIO_Port, LED2_Pin);
+		HAL_Delay(1000);
+		HAL_GPIO_TogglePin(LED3_GPIO_Port, LED3_Pin);
+		HAL_Delay(1000);
+		HAL_GPIO_TogglePin(LED4_GPIO_Port, LED4_Pin);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
