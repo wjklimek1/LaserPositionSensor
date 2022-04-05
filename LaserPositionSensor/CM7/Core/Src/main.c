@@ -23,7 +23,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "printf.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -58,7 +58,10 @@ void SystemClock_Config(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
+void _putchar(char character)
+{
+	HAL_UART_Transmit(&huart1, (uint8_t*)&character, 1, 10);
+}
 /* USER CODE END 0 */
 
 /**
@@ -136,7 +139,8 @@ Error_Handler();
   while (1)
   {
 	  x++;
-	  HAL_Delay(10);
+	  printf("Variable value: %d\n", x);
+	  HAL_Delay(100);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
