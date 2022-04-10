@@ -18,14 +18,13 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include "dcmi.h"
-#include "i2c.h"
 #include "usart.h"
 #include "gpio.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "printf.h"
+#include "stm32h747i_discovery_sdram.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -106,21 +105,19 @@ int main(void)
   /* Configure the system clock */
   SystemClock_Config();
 /* USER CODE BEGIN Boot_Mode_Sequence_2 */
-/* When system initialization is finished, Cortex-M7 will release Cortex-M4 by means of
-HSEM notification */
-/*HW semaphore Clock enable*/
-__HAL_RCC_HSEM_CLK_ENABLE();
-/*Take HSEM */
-HAL_HSEM_FastTake(HSEM_ID_0);
-/*Release HSEM in order to notify the CPU2(CM4)*/
-HAL_HSEM_Release(HSEM_ID_0,0);
-/* wait until CPU2 wakes up from stop mode */
-timeout = 0xFFFF;
-while((__HAL_RCC_GET_FLAG(RCC_FLAG_D2CKRDY) == RESET) && (timeout-- > 0));
-if ( timeout < 0 )
-{
-Error_Handler();
-}
+	/* When system initialization is finished, Cortex-M7 will release Cortex-M4 by means of
+	HSEM notification */
+
+	__HAL_RCC_HSEM_CLK_ENABLE(); /*HW semaphore Clock enable*/
+	HAL_HSEM_FastTake(HSEM_ID_0);	/*Take HSEM */
+	HAL_HSEM_Release(HSEM_ID_0,0);/*Release HSEM in order to notify the CPU2(CM4)*/
+	/* wait until CPU2 wakes up from stop mode */
+	timeout = 0xFFFF;
+	while((__HAL_RCC_GET_FLAG(RCC_FLAG_D2CKRDY) == RESET) && (timeout-- > 0)){}
+	if ( timeout < 0 )
+	{
+		Error_Handler();
+	}
 /* USER CODE END Boot_Mode_Sequence_2 */
 
   /* USER CODE BEGIN SysInit */
@@ -130,9 +127,19 @@ Error_Handler();
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_USART1_UART_Init();
-  MX_DCMI_Init();
-  MX_I2C4_Init();
   /* USER CODE BEGIN 2 */
+
+  /* init peripherals from BSP */
+  BSP_SDRAM_Init(0);
+
+  /* test for SDRAM memory */
+  uint8_t *arr = (uint8_t*)0xD0000000;
+  uint8_t *arr_begin = (uint8_t*)0xD0000000;
+  for (uint32_t i = 0; i < 33554432; i++)
+  {
+	  *arr = i % 0xFF;
+	  arr++;
+  }
 
   int x = 0;
 

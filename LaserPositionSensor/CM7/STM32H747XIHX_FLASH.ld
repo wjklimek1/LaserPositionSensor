@@ -50,6 +50,7 @@ MEMORY
   RAM_D2 (xrw)   : ORIGIN = 0x30000000, LENGTH = 288K
   RAM_D3 (xrw)   : ORIGIN = 0x38000000, LENGTH = 64K
   ITCMRAM (xrw)  : ORIGIN = 0x00000000, LENGTH = 64K
+  SDRAM  (xrw)   : ORIGIN = 0xD0000000, LENGTH = 32M
 }
 
 /* Sections */
@@ -175,6 +176,19 @@ SECTIONS
     . = . + _Min_Stack_Size;
     . = ALIGN(8);
   } >RAM_D1
+  
+  .sdram_section (NOLOAD):
+  {
+    /* Bank separation for SDRAM bandwith optimization (4x8MB SDRAM banks) */
+    . = ALIGN(8M);
+    *(.sdram_bank1)
+    . = ALIGN(8M);
+    *(.sdram_bank2)
+    . = ALIGN(8M);
+    *(.sdram_bank3)
+    . = ALIGN(8M);
+    *(.sdram_bank4)
+  } >SDRAM
 
   /* Remove information from the compiler libraries */
   /DISCARD/ :
