@@ -24,6 +24,10 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "printf.h"
+#include "main.h"
+#include "stm32h747i_discovery.h"
+#include "stm32h747i_discovery_bus.h"
+#include "stm32h747i_discovery_camera.h"
 #include "stm32h747i_discovery_sdram.h"
 /* USER CODE END Includes */
 
@@ -131,15 +135,7 @@ int main(void)
 
   /* init peripherals from BSP */
   BSP_SDRAM_Init(0);
-
-  /* test for SDRAM memory */
-  uint8_t *arr = (uint8_t*)0xD0000000;
-  uint8_t *arr_begin = (uint8_t*)0xD0000000;
-  for (uint32_t i = 0; i < 33554432; i++)
-  {
-	  *arr = i % 0xFF;
-	  arr++;
-  }
+  int32_t error = BSP_CAMERA_Init(0, CAMERA_R640x480, CAMERA_PF_RGB565);
 
   int x = 0;
 
