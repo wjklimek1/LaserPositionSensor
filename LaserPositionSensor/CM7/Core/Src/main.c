@@ -151,8 +151,8 @@ int main(void)
   HAL_Delay(10);
 
   uint32_t camera_line_buf[160] = {0};
-  HAL_DCMI_Start_DMA(&hdcmi, DCMI_MODE_SNAPSHOT, (uint32_t)camera_line_buf, 160*4);
-  HAL_Delay(100);
+  HAL_DCMI_Start_DMA(&hdcmi, DCMI_MODE_CONTINUOUS, (uint32_t)camera_line_buf, 160);
+  HAL_Delay(1000);
 
   int x = 0;
 
@@ -164,14 +164,7 @@ int main(void)
 	{
 		x++;
 		printf("Variable value: %d\n", x);
-		HAL_Delay(1000);
-		HAL_GPIO_TogglePin(LED1_GPIO_Port, LED1_Pin);
-		HAL_Delay(1000);
-		HAL_GPIO_TogglePin(LED2_GPIO_Port, LED2_Pin);
-		HAL_Delay(1000);
-		HAL_GPIO_TogglePin(LED3_GPIO_Port, LED3_Pin);
-		HAL_Delay(1000);
-		HAL_GPIO_TogglePin(LED4_GPIO_Port, LED4_Pin);
+		HAL_Delay(100);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
