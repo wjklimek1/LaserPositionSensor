@@ -1,65 +1,37 @@
-/**
-  ******************************************************************************
-  * @file    ov5640_reg.h
-  * @author  MCD Application Team
-  * @brief   Header of ov5640_reg.c
-  *
-  ******************************************************************************
-  * @attention
-  *
-  * <h2><center>&copy; Copyright (c) 2018 STMicroelectronics.
-  * All rights reserved.</center></h2>
-  *
-  * This software component is licensed by ST under BSD 3-Clause license,
-  * the "License"; You may not use this file except in compliance with the
-  * License. You may obtain a copy of the License at:
-  *                        opensource.org/licenses/BSD-3-Clause
-  *
-  ******************************************************************************
-  */
+#ifndef INC_LPS_OV5640_DEFINES_H_
+#define INC_LPS_OV5640_DEFINES_H_
 
-/* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef OV5640_REG_H
-#define OV5640_REG_H
+#define OV5640_I2C_ADDR                     0x78
 
-#include <cmsis_compiler.h>
+#define OV5640_ID                        0x5640U
+#define OV5640_OK                            (0)
+#define OV5640_ERROR                        (-1)
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+/* Camera resolutions */
+#define OV5640_R160x120                    0x00U /* QQVGA Resolution           */
+#define OV5640_R320x240                    0x01U /* QVGA Resolution            */
+#define OV5640_R480x272                    0x02U /* 480x272 Resolution         */
+#define OV5640_R640x480                    0x03U /* VGA Resolution             */
+#define OV5640_R800x480                    0x04U /* WVGA Resolution            */
 
-/* Includes ------------------------------------------------------------------*/
-/** @addtogroup BSP
-  * @{
-  */
+/* Polarity */
+#define OV5640_POLARITY_PCLK_LOW           0x00U /* Signal Active Low          */
+#define OV5640_POLARITY_PCLK_HIGH          0x01U /* Signal Active High         */
+#define OV5640_POLARITY_HREF_LOW           0x00U /* Signal Active Low          */
+#define OV5640_POLARITY_HREF_HIGH          0x01U /* Signal Active High         */
+#define OV5640_POLARITY_VSYNC_LOW          0x01U /* Signal Active Low          */
+#define OV5640_POLARITY_VSYNC_HIGH         0x00U /* Signal Active High         */
 
-/** @addtogroup Components
-  * @{
-  */
+/* Camera Pixel Format */
+#define OV5640_RGB565                      0x00U /* Pixel Format RGB565        */
+#define OV5640_RGB888                      0x01U /* Pixel Format RGB888        */
+#define OV5640_YUV422                      0x02U /* Pixel Format YUV422        */
+#define OV5640_Y8                          0x07U /* Pixel Format Y8            */
+#define OV5640_JPEG                        0x08U /* Compressed format JPEG     */
 
-/** @addtogroup OV5640
-  * @{
-  */
+/*==================================================================================================================*/
+/*  REGISTERS DEFINES */
 
-/** @defgroup OV5640_Exported_Types
-  * @{
-  */
-
-/**
-  * @}
-  */
-
-/** @defgroup OV5640_Exported_Constants OV5640 Exported Constants
-  * @{
-  */
-
-/**
-  * @brief  OV5640 ID
-  */
-#define  OV5640_ID                                 0x5640U
-/**
-  * @brief  OV5640 Registers
-  */
 /* system and IO pad control [0x3000 ~ 0x3052]        */
 #define OV5640_SYSREM_RESET00                      0x3000U
 #define OV5640_SYSREM_RESET01                      0x3001U
@@ -708,53 +680,4 @@ extern "C" {
 #define OV5640_AFC_READ59                          0x603EU
 #define OV5640_AFC_READ60                          0x603FU
 
-/**
-  * @}
-  */
-
-/************** Generic Function  *******************/
-
-typedef int32_t (*OV5640_Write_Func)(void *, uint16_t, uint8_t *, uint16_t);
-typedef int32_t (*OV5640_Read_Func)(void *, uint16_t, uint8_t *, uint16_t);
-
-typedef struct
-{
-  OV5640_Write_Func   WriteReg;
-  OV5640_Read_Func    ReadReg;
-  void                *handle;
-} ov5640_ctx_t;
-
-/*******************************************************************************
-  * Register      : Generic - All
-  * Address       : Generic - All
-  * Bit Group Name: None
-  * Permission    : W
-  *******************************************************************************/
-int32_t ov5640_write_reg(ov5640_ctx_t *ctx, uint16_t reg, uint8_t *pdata, uint16_t length);
-int32_t ov5640_read_reg(ov5640_ctx_t *ctx, uint16_t reg, uint8_t *pdata, uint16_t length);
-
-int32_t ov5640_register_set(ov5640_ctx_t *ctx, uint16_t reg, uint8_t value);
-int32_t ov5640_register_get(ov5640_ctx_t *ctx, uint16_t reg, uint8_t *value);
-
-
-/**
-  * @}
-  */
-#ifdef __cplusplus
-}
-#endif
-
-#endif /* OV5640_REG_H */
-/**
-  * @}
-  */
-
-/**
-  * @}
-  */
-
-/**
-  * @}
-  */
-
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
+#endif /* INC_LPS_OV5640_DEFINES_H_ */

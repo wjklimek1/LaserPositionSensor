@@ -18,17 +18,20 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "dcmi.h"
+#include "dma.h"
+#include "i2c.h"
 #include "usart.h"
 #include "gpio.h"
+#include "fmc.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "printf.h"
 #include "main.h"
-#include "stm32h747i_discovery.h"
-#include "stm32h747i_discovery_bus.h"
-#include "stm32h747i_discovery_camera.h"
 #include "stm32h747i_discovery_sdram.h"
+
+#include "LPS_ov5640.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -131,11 +134,25 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_USART1_UART_Init();
+  MX_DCMI_Init();
+  MX_DMA_Init();
+  MX_I2C4_Init();
+  MX_FMC_Init();
   /* USER CODE BEGIN 2 */
 
   /* init peripherals from BSP */
   BSP_SDRAM_Init(0);
-  int32_t error = BSP_CAMERA_Init(0, CAMERA_R640x480, CAMERA_PF_RGB565);
+
+  /* init ov5640 camera with I2C */
+  ov5640_init();
+  ov5640_SetPixelFormat(OV5640_RGB888);
+  ov5640_setResolution(OV5640_R160x120);
+
+  HAL_Delay(10);
+
+  uint32_t camera_line_buf[160] = {0};
+  HAL_DCMI_Start_DMA(&hdcmi, DCMI_MODE_SNAPSHOT, (uint32_t)camera_line_buf, 160*4);
+  HAL_Delay(100);
 
   int x = 0;
 
