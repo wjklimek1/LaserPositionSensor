@@ -56,11 +56,16 @@
 
 /* USER CODE BEGIN PV */
 
+  uint32_t camera_frame_buffer[160*120] __attribute__ ((section (".sdram")));
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 /* USER CODE BEGIN PFP */
+
+void _putchar(char character);
+void DCMI_DMALineXferCplt(DMA_HandleTypeDef *hdma);
 
 /* USER CODE END PFP */
 
@@ -69,6 +74,11 @@ void SystemClock_Config(void);
 void _putchar(char character)
 {
 	HAL_UART_Transmit(&huart1, (uint8_t*)&character, 1, 10);
+}
+
+void DCMI_DMAXferCplt(DMA_HandleTypeDef *hdma)
+{
+	HAL_Delay(10);
 }
 /* USER CODE END 0 */
 
@@ -128,7 +138,7 @@ int main(void)
 /* USER CODE END Boot_Mode_Sequence_2 */
 
   /* USER CODE BEGIN SysInit */
-
+  MX_DMA_Init();
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
@@ -150,11 +160,13 @@ int main(void)
 
   HAL_Delay(10);
 
-  uint32_t camera_line_buf[160] = {0};
-  HAL_DCMI_Start_DMA(&hdcmi, DCMI_MODE_CONTINUOUS, (uint32_t)camera_line_buf, 160);
-  HAL_Delay(1000);
+  for (uint32_t i = 0; i < 160*120; i++)
+  {
+	  camera_frame_buffer[i] = 0;
+  }
 
-  int x = 0;
+  HAL_DCMI_Start_DMA(&hdcmi, DCMI_MODE_CONTINUOUS, (uint32_t)camera_frame_buffer, 160*120);
+  HAL_Delay(1000);
 
   /* USER CODE END 2 */
 
@@ -162,13 +174,24 @@ int main(void)
   /* USER CODE BEGIN WHILE */
 	while (1)
 	{
-		x++;
-		printf("Variable value: %d\n", x);
-		HAL_Delay(100);
+		  uint64_t avg = 0;
+		  for (uint32_t i = 0; i < (160 * 120); i++)
+		  {
+			  //printf("%u ", camera_frame_buffer[i]);
+			  avg += camera_frame_buffer[i];
+		  }
+		  avg = avg/(160*120);
+
+		  uint32_t print_avg = avg;
+
+		  printf("%lu\n", print_avg);
+
+		  HAL_Delay(500);
+
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-  }
+    }
   /* USER CODE END 3 */
 }
 
