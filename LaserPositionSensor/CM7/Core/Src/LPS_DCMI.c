@@ -5,6 +5,7 @@ extern uint8_t cameraLineBuffer[CAMERA_LINE_SIZE] __attribute__ ((aligned (32)))
 extern int vsync;
 extern int hsync;
 extern int dma_line;
+extern bool print_debug;
 
 void DCMI_DMALineXferCplt(DMA_HandleTypeDef *hdma)
 {
@@ -34,16 +35,10 @@ HAL_StatusTypeDef DCMI_Start_DMA_line(DCMI_HandleTypeDef *hdcmi, uint32_t DCMI_M
   /* Set DMA callbacks */
   hdcmi->DMA_Handle->XferCpltCallback  = DCMI_DMALineXferCplt;
   hdcmi->DMA_Handle->XferErrorCallback = DCMI_DMAError;
-  hdcmi->DMA_Handle->XferAbortCallback = NULL;
-
-  hdcmi->XferCount = 0;
-  hdcmi->XferTransferNumber = 0;
-  hdcmi->XferSize = CAMERA_LINE_SIZE / 4U;
-  hdcmi->pBuffPtr = (uint32_t) cameraLineBuffer;
 
   /* Enable the DMA Stream */
   uint32_t pLineData = (uint32_t) cameraLineBuffer;
-  HAL_DMA_Start_IT(hdcmi->DMA_Handle, (uint32_t)&hdcmi->Instance->DR, pLineData, hdcmi->XferSize);
+  HAL_DMA_Start_IT(hdcmi->DMA_Handle, (uint32_t)&hdcmi->Instance->DR, pLineData, CAMERA_LINE_SIZE/4);
 
   /* Enable Capture */
   hdcmi->Instance->CR |= DCMI_CR_CAPTURE;

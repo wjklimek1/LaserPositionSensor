@@ -72,8 +72,8 @@ void SystemClock_Config(void);
 /* USER CODE BEGIN PFP */
 
 void _putchar(char character);
-void DCMI_DMALineXferCplt(DMA_HandleTypeDef *hdma);
 void HAL_DCMI_VsyncEventCallback(DCMI_HandleTypeDef *hdcmi);
+void HAL_DCMI_LineEventCallback(DCMI_HandleTypeDef *hdcmi);
 
 /* USER CODE END PFP */
 
@@ -92,7 +92,6 @@ bool print_debug = false;
 /* full frame was received */
 void HAL_DCMI_VsyncEventCallback(DCMI_HandleTypeDef *hdcmi)
 {
-	//HAL_Delay(0);
 	print_debug = true;
 	vsync++; //full
 }
@@ -179,8 +178,8 @@ int main(void)
 
   /* init ov5640 camera with I2C */
   ov5640_init();
-  ov5640_SetPixelFormat(OV5640_RGB888);
-  ov5640_setResolution(OV5640_R160x120);
+  ov5640_SetPixelFormat(OV5640_RGB565);
+  ov5640_setResolution(OV5640_R640x480);
 
   HAL_Delay(10);
 
