@@ -291,7 +291,7 @@ int32_t ov5640_init()
 	}
 
 	/* Set PixelClock, Href and VSync Polarity */
-	OV5640_SetPolarities(OV5640_POLARITY_PCLK_HIGH, OV5640_POLARITY_HREF_HIGH, OV5640_POLARITY_VSYNC_HIGH);
+	ov5640_SetPolarities(OV5640_POLARITY_PCLK_HIGH, OV5640_POLARITY_HREF_HIGH, OV5640_POLARITY_VSYNC_HIGH);
 	return ret;
 }
 
@@ -493,7 +493,7 @@ int32_t ov5640_SetPixelFormat(uint32_t PixelFormat)
 	return OV5640_OK;
 }
 
-int32_t OV5640_SetPolarities(uint32_t PclkPol, uint32_t HrefPol, uint32_t VsyncPol)
+int32_t ov5640_SetPolarities(uint32_t PclkPol, uint32_t HrefPol, uint32_t VsyncPol)
 {
 	uint8_t tmp;
 	tmp = (uint8_t)(PclkPol << 5U) | (HrefPol << 1U) | VsyncPol;
@@ -502,3 +502,9 @@ int32_t OV5640_SetPolarities(uint32_t PclkPol, uint32_t HrefPol, uint32_t VsyncP
 	return OV5640_OK;
 }
 
+int32_t ov5640_enableTestMode()
+{
+	uint8_t tmp = 0b10000000;
+	ov5640_write_reg(OV5640_PRE_ISP_TEST_SETTING1, &tmp, 1);
+	return OV5640_OK;
+}

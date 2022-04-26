@@ -7,12 +7,12 @@ extern int hsync;
 extern int dma_line;
 extern bool print_debug;
 
-void DCMI_DMALineXferCplt(DMA_HandleTypeDef *hdma)
+void DCMI_DMA_LineTransferCompletedCallback(DMA_HandleTypeDef *hdma)
 {
 	dma_line++;
 }
 
-void DCMI_DMAError(DMA_HandleTypeDef *hdma)
+void DCMI_DMA_Error(DMA_HandleTypeDef *hdma)
 {
 
 }
@@ -33,8 +33,8 @@ HAL_StatusTypeDef DCMI_Start_DMA_line(DCMI_HandleTypeDef *hdcmi, uint32_t DCMI_M
   hdcmi->Instance->CR |= (uint32_t)(DCMI_Mode);
 
   /* Set DMA callbacks */
-  hdcmi->DMA_Handle->XferCpltCallback  = DCMI_DMALineXferCplt;
-  hdcmi->DMA_Handle->XferErrorCallback = DCMI_DMAError;
+  hdcmi->DMA_Handle->XferCpltCallback  = DCMI_DMA_LineTransferCompletedCallback;
+  hdcmi->DMA_Handle->XferErrorCallback = DCMI_DMA_Error;
 
   /* Enable the DMA Stream */
   uint32_t pLineData = (uint32_t) cameraLineBuffer;

@@ -93,7 +93,7 @@ bool print_debug = false;
 void HAL_DCMI_VsyncEventCallback(DCMI_HandleTypeDef *hdcmi)
 {
 	print_debug = true;
-	vsync++; //full
+	vsync++;
 }
 
 /* single line was received */
@@ -178,12 +178,15 @@ int main(void)
 
   /* init ov5640 camera with I2C */
   ov5640_init();
-  ov5640_SetPixelFormat(OV5640_RGB565);
-  ov5640_setResolution(OV5640_R640x480);
+  ov5640_SetPixelFormat(OV5640_RGB888);
+  ov5640_setResolution(OV5640_R160x120);
+
+  /* set camera to test mode */
+  ov5640_enableTestMode();
 
   HAL_Delay(10);
 
-//  HAL_DCMI_Start_DMA(&hdcmi, DCMI_MODE_SNAPSHOT, (uint32_t)camera_frame_buffer, 160*120);
+  //HAL_DCMI_Start_DMA(&hdcmi, DCMI_MODE_SNAPSHOT, (uint32_t)camera_frame_buffer, 160*120);
   DCMI_Start_DMA_line(&hdcmi, DCMI_MODE_CONTINUOUS);
   HAL_Delay(1000);
 
