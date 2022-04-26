@@ -27,11 +27,14 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include <stdbool.h>
+
 #include "printf.h"
 #include "main.h"
 #include "stm32h747i_discovery_sdram.h"
 
 #include "LPS_ov5640.h"
+#include "LPS_DCMI.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -45,6 +48,9 @@
 #ifndef HSEM_ID_0
 #define HSEM_ID_0 (0U) /* HW semaphore 0*/
 #endif
+
+
+
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -56,7 +62,8 @@
 
 /* USER CODE BEGIN PV */
 
-  uint32_t camera_frame_buffer[160*120] __attribute__ ((section (".sdram")));
+//uint32_t camera_frame_buffer[160*120] __attribute__ ((section (".sdram")));
+uint8_t cameraLineBuffer[CAMERA_LINE_SIZE] __attribute__ ((aligned (32)));
 
 /* USER CODE END PV */
 
@@ -66,6 +73,7 @@ void SystemClock_Config(void);
 
 void _putchar(char character);
 void DCMI_DMALineXferCplt(DMA_HandleTypeDef *hdma);
+void HAL_DCMI_VsyncEventCallback(DCMI_HandleTypeDef *hdcmi);
 
 /* USER CODE END PFP */
 
@@ -76,10 +84,26 @@ void _putchar(char character)
 	HAL_UART_Transmit(&huart1, (uint8_t*)&character, 1, 10);
 }
 
-void DCMI_DMAXferCplt(DMA_HandleTypeDef *hdma)
+int vsync = 0;
+int hsync = 0;
+int dma_line = 0;
+bool print_debug = false;
+
+/* full frame was received */
+void HAL_DCMI_VsyncEventCallback(DCMI_HandleTypeDef *hdcmi)
 {
-	HAL_Delay(10);
+	//HAL_Delay(0);
+	print_debug = true;
+	vsync++; //full
 }
+
+/* single line was received */
+void HAL_DCMI_LineEventCallback(DCMI_HandleTypeDef *hdcmi)
+{
+	hsync++;
+}
+
+
 /* USER CODE END 0 */
 
 /**
@@ -160,12 +184,8 @@ int main(void)
 
   HAL_Delay(10);
 
-  for (uint32_t i = 0; i < 160*120; i++)
-  {
-	  camera_frame_buffer[i] = 0;
-  }
-
-  HAL_DCMI_Start_DMA(&hdcmi, DCMI_MODE_CONTINUOUS, (uint32_t)camera_frame_buffer, 160*120);
+//  HAL_DCMI_Start_DMA(&hdcmi, DCMI_MODE_SNAPSHOT, (uint32_t)camera_frame_buffer, 160*120);
+  DCMI_Start_DMA_line(&hdcmi, DCMI_MODE_CONTINUOUS);
   HAL_Delay(1000);
 
   /* USER CODE END 2 */
@@ -174,19 +194,21 @@ int main(void)
   /* USER CODE BEGIN WHILE */
 	while (1)
 	{
-		  uint64_t avg = 0;
-		  for (uint32_t i = 0; i < (160 * 120); i++)
-		  {
-			  //printf("%u ", camera_frame_buffer[i]);
-			  avg += camera_frame_buffer[i];
-		  }
-		  avg = avg/(160*120);
+		if (print_debug == true) {
+			uint32_t avg = 0;
+			for (uint32_t i = 0; i < CAMERA_LINE_SIZE; i++)
+			{
+				avg += cameraLineBuffer[i];
+			}
+			avg = avg / CAMERA_LINE_SIZE;
 
-		  uint32_t print_avg = avg;
-
-		  printf("%lu\n", print_avg);
-
-		  HAL_Delay(500);
+			printf("\n");
+			printf("dma transfers = %d\n", dma_line);
+			printf("avg = %lu\n", avg);
+			printf("vsync = %d\n", vsync);
+			printf("hsync = %d\n", hsync);
+			print_debug = false;
+		}
 
     /* USER CODE END WHILE */
 
