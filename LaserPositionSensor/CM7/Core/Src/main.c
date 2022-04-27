@@ -59,7 +59,7 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-extern bool active_buffer;
+extern uint32_t active_buffer;
 
 uint8_t cameraLineBuffer0[CAMERA_LINE_SIZE] __attribute__ ((aligned (32)));
 uint8_t cameraLineBuffer1[CAMERA_LINE_SIZE] __attribute__ ((aligned (32)));
@@ -179,10 +179,11 @@ int main(void)
   ov5640_setResolution(OV5640_R160x120);
 
   /* set camera to test mode */
-  //ov5640_enableTestMode();
+  ov5640_enableTestMode();
 
   //ov5640_disableAutoExposeure();
 
+  /* start initial frame capture */
   HAL_Delay(10);
   DCMI_Start_DMA_line(&hdcmi, DCMI_MODE_SNAPSHOT);
 
@@ -192,32 +193,39 @@ int main(void)
   /* USER CODE BEGIN WHILE */
 	while (1)
 	{
+		/* wait until data in one of the buffers is ready to be processed */
 		if (process_line == true)
 		{
-			process_line = false;
+			process_line = false; //reset flag that was set by DMA TC interrupt
 
 			uint32_t line_sum = 0;
+
+			/* if buffer 0 is accessed by DMA, do calculations on buffer 1 */
 			if (active_buffer == 0)
 			{
 				for (uint32_t i = 0; i < CAMERA_LINE_SIZE; i++)
 				{
 					line_sum += cameraLineBuffer1[i];
-					line_weight_vertical[i / 3] += cameraLineBuffer1[i];
+					line_weight_vertical[i / (CAMERA_BITS_PER_PX / 8)] += cameraLineBuffer1[i];
 				}
 			}
 
+			/* if buffer 1 is accessed by DMA, do calculations on buffer 0 */
 			if (active_buffer == 1)
 			{
 				for (uint32_t i = 0; i < CAMERA_LINE_SIZE; i++)
 				{
 					line_sum += cameraLineBuffer0[i];
-					line_weight_vertical[i / 3] += cameraLineBuffer1[i];
+					line_weight_vertical[i / (CAMERA_BITS_PER_PX / 8)] += cameraLineBuffer0[i];
 				}
 			}
 
+			/* save sum of the currently processed line */
 			line_weight_horizontal[line_number] = line_sum;
+			line_number++;
 
-			if (line_number >= CAMERA_RES_Y - 1)
+			/* if last line of the frame was taken, print results */
+			if (line_number >= CAMERA_RES_Y)
 			{
 				printf("vertical sums: ");
 				for (int i = 0; i < CAMERA_RES_X; i++)
@@ -231,8 +239,15 @@ int main(void)
 				{
 					printf(" %d", line_weight_horizontal[i]);
 				}
-				printf("\n");
+				printf("\n\n");
 
+				/* reset values in vertical sums buffer */
+				for (uint32_t i = 0; i < CAMERA_LINE_SIZE; i++)
+				{
+					line_weight_vertical[i / (CAMERA_BITS_PER_PX / 8)] = 0;
+				}
+
+				/* start capturing next frame */
 				DCMI_Start_DMA_line(&hdcmi, DCMI_MODE_SNAPSHOT);
 			}
 		}

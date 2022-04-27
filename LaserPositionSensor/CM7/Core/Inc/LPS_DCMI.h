@@ -7,7 +7,7 @@
 #define CAMERA_RES_X              (160)
 #define CAMERA_RES_Y              (120)
 #define CAMERA_NUM_PIXELS         (CAMERA_RES_X * CAMERA_RES_Y)
-#define CAMERA_BITS_PER_PX        24U
+#define CAMERA_BITS_PER_PX        24
 #define CAMERA_LINE_SIZE          (CAMERA_RES_X * CAMERA_BITS_PER_PX / 8)
 #define CAMERA_BUFF_SIZE          (CAMERA_NUM_PIXELS * CAMERA_BITS_PER_PX / 8)
 

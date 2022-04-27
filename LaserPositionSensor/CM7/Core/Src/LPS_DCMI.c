@@ -8,10 +8,13 @@ extern uint32_t line_number;
 
 uint32_t pLineData0 = (uint32_t) cameraLineBuffer0;
 uint32_t pLineData1 = (uint32_t) cameraLineBuffer1;
-bool active_buffer = 0;
+uint32_t active_buffer = 0;
 
 void DCMI_DMA_LineTransferCompletedCallback(DMA_HandleTypeDef *hdma)
 {
+	if (line_number >= CAMERA_RES_Y)
+		return;
+
 	active_buffer = !active_buffer;
 
 	if (active_buffer == 0)
@@ -20,7 +23,6 @@ void DCMI_DMA_LineTransferCompletedCallback(DMA_HandleTypeDef *hdma)
 		HAL_DMA_Start_IT(hdma, (uint32_t) &(&hdcmi)->Instance->DR, pLineData1, CAMERA_LINE_SIZE/4);
 
 	process_line = true;
-	line_number++;
 }
 
 void DCMI_DMA_Error(DMA_HandleTypeDef *hdma)
