@@ -219,7 +219,20 @@ int main(void)
 
 			if (line_number >= CAMERA_RES_Y - 1)
 			{
-				HAL_Delay(100);
+				printf("vertical sums: ");
+				for (int i = 0; i < CAMERA_RES_X; i++)
+				{
+					printf(" %d", line_weight_vertical[i]);
+				}
+				printf("\n");
+
+				printf("horizontal sums: ");
+				for (int i = 0; i < CAMERA_RES_Y; i++)
+				{
+					printf(" %d", line_weight_horizontal[i]);
+				}
+				printf("\n");
+
 				DCMI_Start_DMA_line(&hdcmi, DCMI_MODE_SNAPSHOT);
 			}
 		}
