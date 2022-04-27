@@ -1,15 +1,25 @@
 #include "LPS_DCMI.h"
 
 extern DCMI_HandleTypeDef hdcmi;
-extern uint8_t cameraLineBuffer[CAMERA_LINE_SIZE] __attribute__ ((aligned (32)));
-extern int vsync;
-extern int hsync;
-extern int dma_line;
+extern uint8_t cameraLineBuffer0[CAMERA_LINE_SIZE] __attribute__ ((aligned (32)));
+extern uint8_t cameraLineBuffer1[CAMERA_LINE_SIZE] __attribute__ ((aligned (32)));
+
 extern bool print_debug;
+
+uint32_t pLineData0 = (uint32_t) cameraLineBuffer0;
+uint32_t pLineData1 = (uint32_t) cameraLineBuffer1;
+bool active_buffer = 0;
 
 void DCMI_DMA_LineTransferCompletedCallback(DMA_HandleTypeDef *hdma)
 {
-	dma_line++;
+	active_buffer = !active_buffer;
+
+	if (active_buffer == 0)
+		HAL_DMA_Start_IT(hdma, (uint32_t) &(&hdcmi)->Instance->DR, pLineData0, CAMERA_LINE_SIZE/4);
+	else
+		HAL_DMA_Start_IT(hdma, (uint32_t) &(&hdcmi)->Instance->DR, pLineData1, CAMERA_LINE_SIZE/4);
+
+	print_debug = true;
 }
 
 void DCMI_DMA_Error(DMA_HandleTypeDef *hdma)
@@ -37,8 +47,7 @@ HAL_StatusTypeDef DCMI_Start_DMA_line(DCMI_HandleTypeDef *hdcmi, uint32_t DCMI_M
   hdcmi->DMA_Handle->XferErrorCallback = DCMI_DMA_Error;
 
   /* Enable the DMA Stream */
-  uint32_t pLineData = (uint32_t) cameraLineBuffer;
-  HAL_DMA_Start_IT(hdcmi->DMA_Handle, (uint32_t)&hdcmi->Instance->DR, pLineData, CAMERA_LINE_SIZE/4);
+  HAL_DMA_Start_IT(hdcmi->DMA_Handle, (uint32_t)&hdcmi->Instance->DR, pLineData0, CAMERA_LINE_SIZE/4);
 
   /* Enable Capture */
   hdcmi->Instance->CR |= DCMI_CR_CAPTURE;
@@ -50,10 +59,3 @@ HAL_StatusTypeDef DCMI_Start_DMA_line(DCMI_HandleTypeDef *hdcmi, uint32_t DCMI_M
   return HAL_OK;
 }
 
-void emptyLineBuffer()
-{
-	for (uint32_t i = 0; i < CAMERA_LINE_SIZE; i++)
-	{
-		cameraLineBuffer[i] = 0;
-	}
-}
