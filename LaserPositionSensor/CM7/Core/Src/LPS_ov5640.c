@@ -508,3 +508,10 @@ int32_t ov5640_enableTestMode()
 	ov5640_write_reg(OV5640_PRE_ISP_TEST_SETTING1, &tmp, 1);
 	return OV5640_OK;
 }
+
+int32_t ov5640_disableAutoExposeure()
+{
+	uint8_t tmp = 0b000000011;
+	ov5640_write_reg(OV5640_AEC_PK_MANUAL, &tmp, 1);
+	return OV5640_OK;
+}

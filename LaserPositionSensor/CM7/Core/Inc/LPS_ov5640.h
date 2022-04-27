@@ -14,6 +14,7 @@ int32_t ov5640_setResolution(uint32_t resolution);
 int32_t ov5640_SetPixelFormat(uint32_t PixelFormat);
 int32_t ov5640_SetPolarities(uint32_t PclkPol, uint32_t HrefPol, uint32_t VsyncPol);
 int32_t ov5640_enableTestMode();
+int32_t ov5640_disableAutoExposeure();
 
 
 #endif /* INC_LPS_OV5640_H_ */

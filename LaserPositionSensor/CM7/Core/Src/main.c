@@ -184,6 +184,8 @@ int main(void)
   /* set camera to test mode */
   ov5640_enableTestMode();
 
+  ov5640_disableAutoExposeure();
+
   HAL_Delay(10);
 
   //HAL_DCMI_Start_DMA(&hdcmi, DCMI_MODE_SNAPSHOT, (uint32_t)camera_frame_buffer, 160*120);
