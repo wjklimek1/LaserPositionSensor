@@ -3,8 +3,8 @@
 extern DCMI_HandleTypeDef hdcmi;
 extern uint8_t cameraLineBuffer0[CAMERA_LINE_SIZE] __attribute__ ((aligned (32)));
 extern uint8_t cameraLineBuffer1[CAMERA_LINE_SIZE] __attribute__ ((aligned (32)));
-
-extern bool print_debug;
+extern bool process_line;
+extern uint32_t line_number;
 
 uint32_t pLineData0 = (uint32_t) cameraLineBuffer0;
 uint32_t pLineData1 = (uint32_t) cameraLineBuffer1;
@@ -19,7 +19,8 @@ void DCMI_DMA_LineTransferCompletedCallback(DMA_HandleTypeDef *hdma)
 	else
 		HAL_DMA_Start_IT(hdma, (uint32_t) &(&hdcmi)->Instance->DR, pLineData1, CAMERA_LINE_SIZE/4);
 
-	print_debug = true;
+	process_line = true;
+	line_number++;
 }
 
 void DCMI_DMA_Error(DMA_HandleTypeDef *hdma)

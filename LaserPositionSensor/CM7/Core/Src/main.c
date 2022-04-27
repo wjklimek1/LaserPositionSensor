@@ -59,17 +59,17 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-
-uint8_t camera_frame_buffer[CAMERA_BUFF_SIZE] __attribute__ ((aligned (32), section (".sdram")));
+extern bool active_buffer;
 
 uint8_t cameraLineBuffer0[CAMERA_LINE_SIZE] __attribute__ ((aligned (32)));
 uint8_t cameraLineBuffer1[CAMERA_LINE_SIZE] __attribute__ ((aligned (32)));
 
+uint32_t line_weight_vertical[CAMERA_RES_X];
+uint32_t line_weight_horizontal[CAMERA_RES_Y];
 
-int vsync = 0;
-int hsync = 0;
-bool print_debug = false;
-extern bool active_buffer;
+uint32_t line_number = 0;
+
+bool process_line = false;
 
 /* USER CODE END PV */
 
@@ -93,13 +93,13 @@ void _putchar(char character)
 /* full frame was received */
 void HAL_DCMI_VsyncEventCallback(DCMI_HandleTypeDef *hdcmi)
 {
-	vsync++;
+	line_number = 0;
 }
 
 /* single line was received */
 void HAL_DCMI_LineEventCallback(DCMI_HandleTypeDef *hdcmi)
 {
-	hsync++;
+
 }
 
 
@@ -184,10 +184,7 @@ int main(void)
   //ov5640_disableAutoExposeure();
 
   HAL_Delay(10);
-
-  //HAL_DCMI_Start_DMA(&hdcmi, DCMI_MODE_CONTINUOUS, (uint32_t)camera_frame_buffer, CAMERA_BUFF_SIZE);
-  DCMI_Start_DMA_line(&hdcmi, DCMI_MODE_CONTINUOUS);
-  HAL_Delay(1000);
+  DCMI_Start_DMA_line(&hdcmi, DCMI_MODE_SNAPSHOT);
 
   /* USER CODE END 2 */
 
@@ -195,15 +192,17 @@ int main(void)
   /* USER CODE BEGIN WHILE */
 	while (1)
 	{
-		if (print_debug == true)
+		if (process_line == true)
 		{
+			process_line = false;
 
-			uint32_t avg = 0;
+			uint32_t line_sum = 0;
 			if (active_buffer == 0)
 			{
 				for (uint32_t i = 0; i < CAMERA_LINE_SIZE; i++)
 				{
-					avg += cameraLineBuffer1[i];
+					line_sum += cameraLineBuffer1[i];
+					line_weight_vertical[i / 3] += cameraLineBuffer1[i];
 				}
 			}
 
@@ -211,17 +210,18 @@ int main(void)
 			{
 				for (uint32_t i = 0; i < CAMERA_LINE_SIZE; i++)
 				{
-					avg += cameraLineBuffer0[i];
+					line_sum += cameraLineBuffer0[i];
+					line_weight_vertical[i / 3] += cameraLineBuffer1[i];
 				}
 			}
 
-			avg = avg / CAMERA_LINE_SIZE;
+			line_weight_horizontal[line_number] = line_sum;
 
-			printf("\n");
-			printf("avg = %lu\n", avg);
-			printf("vsync = %d\n", vsync);
-			printf("hsync = %d\n", hsync);
-			print_debug = false;
+			if (line_number >= CAMERA_RES_Y - 1)
+			{
+				HAL_Delay(100);
+				DCMI_Start_DMA_line(&hdcmi, DCMI_MODE_SNAPSHOT);
+			}
 		}
 
     /* USER CODE END WHILE */
