@@ -176,7 +176,7 @@ int main(void)
   /* init ov5640 camera with I2C */
   ov5640_init();
   ov5640_SetPixelFormat(OV5640_RGB888);
-  ov5640_setResolution(OV5640_R160x120);
+  ov5640_setResolution(OV5640_R320x240);
 
   /* set camera to test mode */
   ov5640_enableTestMode();
