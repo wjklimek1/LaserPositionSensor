@@ -179,9 +179,11 @@ int main(void)
   ov5640_setResolution(OV5640_R320x240);
 
   /* set camera to test mode */
-  ov5640_enableTestMode();
+  //ov5640_enableTestMode();
 
-  //ov5640_disableAutoExposeure();
+  /* disable auto exposure and set it to lower value */
+  ov5640_disableAutoExposure();
+  ov5640_setManualExposure(0, 0);
 
   /* start initial frame capture */
   HAL_Delay(10);

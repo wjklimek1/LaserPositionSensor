@@ -509,9 +509,29 @@ int32_t ov5640_enableTestMode()
 	return OV5640_OK;
 }
 
-int32_t ov5640_disableAutoExposeure()
+int32_t ov5640_disableAutoExposure()
 {
+	/* disable AEC (Auto Exposure Control) and AGC (Auto Gain Control) */
 	uint8_t tmp = 0b000000011;
 	ov5640_write_reg(OV5640_AEC_PK_MANUAL, &tmp, 1);
+
+	return OV5640_OK;
+}
+
+int32_t ov5640_setManualExposure(uint16_t exposure, uint8_t gain)
+{
+	/* set manual exposure */
+	uint32_t exposure_reg_val = exposure << 4; //last 4 bits have to be 0
+	uint8_t exposure_19_16_byte = (exposure_reg_val >> 16) & 0xFF;
+	uint8_t exposure_high_byte = (exposure_reg_val >> 8) & 0xFF;
+	uint8_t exposure_low_byte = exposure_reg_val & 0xFF;
+
+	ov5640_write_reg(OV5640_AEC_PK_EXPOSURE_LOW, &exposure_low_byte, 1);
+	ov5640_write_reg(OV5640_AEC_PK_EXPOSURE_HIGH, &exposure_high_byte, 1);
+	ov5640_write_reg(OV5640_AEC_PK_EXPOSURE_19_16, &exposure_19_16_byte, 1);
+
+	/* set manual gain */
+	ov5640_write_reg(OV5640_AEC_PK_REAL_GAIN_LOW, &gain, 1);
+
 	return OV5640_OK;
 }
