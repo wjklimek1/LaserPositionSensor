@@ -63,6 +63,8 @@ void Error_Handler(void);
 #define SWDIO_GPIO_Port GPIOA
 #define DCMI_PWR_EN_Pin GPIO_PIN_14
 #define DCMI_PWR_EN_GPIO_Port GPIOJ
+#define BUTTON_Pin GPIO_PIN_13
+#define BUTTON_GPIO_Port GPIOC
 #define LED1_Pin GPIO_PIN_12
 #define LED1_GPIO_Port GPIOI
 #define LED2_Pin GPIO_PIN_13

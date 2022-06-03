@@ -35,6 +35,7 @@
 
 #include "LPS_ov5640.h"
 #include "LPS_DCMI.h"
+#include "LPS_communication.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -183,7 +184,7 @@ int main(void)
 
   /* disable auto exposure and set it to lower value */
   ov5640_disableAutoExposure();
-  ov5640_setManualExposure(0, 0);
+  ov5640_setManualExposure(8, 0);
 
   /* start initial frame capture */
   HAL_Delay(10);
@@ -205,9 +206,27 @@ int main(void)
 			/* if buffer 0 is accessed by DMA, do calculations on buffer 1 */
 			if (active_buffer == 0)
 			{
+				/* delete channels G and B */
+				for (uint32_t i = 0; i < CAMERA_LINE_SIZE; i+=3)
+				{
+					cameraLineBuffer1[i + 1] = 0;
+					cameraLineBuffer1[i + 2] = 0;
+				}
+
+				/* delete noise values */
 				for (uint32_t i = 0; i < CAMERA_LINE_SIZE; i++)
 				{
+					if (cameraLineBuffer1[i] < 10)
+						cameraLineBuffer1[i] = 0;
+				}
+
+				/* calculate sum of all pixels */
+				for (uint32_t i = 0; i < CAMERA_LINE_SIZE; i++)
+				{
+					/* horizontal */
 					line_sum += cameraLineBuffer1[i];
+
+					/* vertical */
 					line_weight_vertical[i / (CAMERA_BITS_PER_PX / 8)] += cameraLineBuffer1[i];
 				}
 			}
@@ -215,9 +234,27 @@ int main(void)
 			/* if buffer 1 is accessed by DMA, do calculations on buffer 0 */
 			if (active_buffer == 1)
 			{
+				/* delete channels G and B */
+				for (uint32_t i = 0; i < CAMERA_LINE_SIZE; i+=3)
+				{
+					cameraLineBuffer0[i + 1] = 0;
+					cameraLineBuffer0[i + 2] = 0;
+				}
+
+				/* delete noise values */
 				for (uint32_t i = 0; i < CAMERA_LINE_SIZE; i++)
 				{
+					if (cameraLineBuffer0[i] < 10)
+						cameraLineBuffer0[i] = 0;
+				}
+
+				/* calculate sum of all pixels */
+				for (uint32_t i = 0; i < CAMERA_LINE_SIZE; i++)
+				{
+					/* horizontal */
 					line_sum += cameraLineBuffer0[i];
+
+					/* vertical */
 					line_weight_vertical[i / (CAMERA_BITS_PER_PX / 8)] += cameraLineBuffer0[i];
 				}
 			}
@@ -229,19 +266,7 @@ int main(void)
 			/* if last line of the frame was taken, print results */
 			if (line_number >= CAMERA_RES_Y)
 			{
-				printf("vertical sums: ");
-				for (int i = 0; i < CAMERA_RES_X; i++)
-				{
-					printf(" %d", line_weight_vertical[i]);
-				}
-				printf("\n");
-
-				printf("horizontal sums: ");
-				for (int i = 0; i < CAMERA_RES_Y; i++)
-				{
-					printf(" %d", line_weight_horizontal[i]);
-				}
-				printf("\n\n");
+				printDataToMatlab(line_weight_horizontal, CAMERA_RES_Y, line_weight_vertical, CAMERA_RES_X);
 
 				/* reset values in vertical sums buffer */
 				for (uint32_t i = 0; i < CAMERA_LINE_SIZE; i++)
@@ -249,8 +274,16 @@ int main(void)
 					line_weight_vertical[i / (CAMERA_BITS_PER_PX / 8)] = 0;
 				}
 
+				HAL_Delay(100);
+
+//				while(HAL_GPIO_ReadPin(BUTTON_GPIO_Port, BUTTON_Pin) == 0)
+//				{
+//					HAL_Delay(100);
+//				}
+
 				/* start capturing next frame */
 				DCMI_Start_DMA_line(&hdcmi, DCMI_MODE_SNAPSHOT);
+
 			}
 		}
 
