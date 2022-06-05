@@ -213,12 +213,12 @@ int main(void)
 					cameraLineBuffer1[i + 2] = 0;
 				}
 
-				/* delete noise values */
-				for (uint32_t i = 0; i < CAMERA_LINE_SIZE; i++)
-				{
-					if (cameraLineBuffer1[i] < 10)
-						cameraLineBuffer1[i] = 0;
-				}
+//				/* delete noise values */
+//				for (uint32_t i = 0; i < CAMERA_LINE_SIZE; i++)
+//				{
+//					if (cameraLineBuffer1[i] < 10)
+//						cameraLineBuffer1[i] = 0;
+//				}
 
 				/* calculate sum of all pixels */
 				for (uint32_t i = 0; i < CAMERA_LINE_SIZE; i++)
@@ -242,11 +242,11 @@ int main(void)
 				}
 
 				/* delete noise values */
-				for (uint32_t i = 0; i < CAMERA_LINE_SIZE; i++)
-				{
-					if (cameraLineBuffer0[i] < 10)
-						cameraLineBuffer0[i] = 0;
-				}
+//				for (uint32_t i = 0; i < CAMERA_LINE_SIZE; i++)
+//				{
+//					if (cameraLineBuffer0[i] < 10)
+//						cameraLineBuffer0[i] = 0;
+//				}
 
 				/* calculate sum of all pixels */
 				for (uint32_t i = 0; i < CAMERA_LINE_SIZE; i++)
@@ -273,13 +273,6 @@ int main(void)
 				{
 					line_weight_vertical[i / (CAMERA_BITS_PER_PX / 8)] = 0;
 				}
-
-				HAL_Delay(100);
-
-//				while(HAL_GPIO_ReadPin(BUTTON_GPIO_Port, BUTTON_Pin) == 0)
-//				{
-//					HAL_Delay(100);
-//				}
 
 				/* start capturing next frame */
 				DCMI_Start_DMA_line(&hdcmi, DCMI_MODE_SNAPSHOT);
