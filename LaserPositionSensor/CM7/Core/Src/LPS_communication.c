@@ -24,4 +24,9 @@ void printDataToMatlab(uint32_t *h_values, uint32_t h_size, uint32_t *v_values, 
 	printf("\n");
 }
 
+void printCOGToMatlab(uint32_t cog_h, uint32_t cog_v)
+{
+	printf("cog_horizontal = %d; cog_vertical = %d;\n", cog_h, cog_v);
+}
+
 #endif /* SRC_LPS_COMMUNICATION_C_ */

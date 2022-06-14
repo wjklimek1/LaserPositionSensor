@@ -103,6 +103,20 @@ void HAL_DCMI_LineEventCallback(DCMI_HandleTypeDef *hdcmi)
 
 }
 
+uint32_t calculateCOG(uint32_t *buffer, uint32_t buffer_size)
+{
+	uint32_t weight_sum = 1;
+	uint32_t cog = 0;
+
+	for (uint32_t i = 1; i < buffer_size + 1; i++)
+	{
+		cog += buffer[i-1] * i;
+		weight_sum += buffer[i-1];
+	}
+	cog = cog / weight_sum;
+
+	return cog;
+}
 
 /* USER CODE END 0 */
 
@@ -213,12 +227,12 @@ int main(void)
 					cameraLineBuffer1[i + 2] = 0;
 				}
 
-//				/* delete noise values */
-//				for (uint32_t i = 0; i < CAMERA_LINE_SIZE; i++)
-//				{
-//					if (cameraLineBuffer1[i] < 10)
-//						cameraLineBuffer1[i] = 0;
-//				}
+				/* delete noise values */
+				for (uint32_t i = 0; i < CAMERA_LINE_SIZE; i++)
+				{
+					if (cameraLineBuffer1[i] < 10)
+						cameraLineBuffer1[i] = 0;
+				}
 
 				/* calculate sum of all pixels */
 				for (uint32_t i = 0; i < CAMERA_LINE_SIZE; i++)
@@ -242,11 +256,11 @@ int main(void)
 				}
 
 				/* delete noise values */
-//				for (uint32_t i = 0; i < CAMERA_LINE_SIZE; i++)
-//				{
-//					if (cameraLineBuffer0[i] < 10)
-//						cameraLineBuffer0[i] = 0;
-//				}
+				for (uint32_t i = 0; i < CAMERA_LINE_SIZE; i++)
+				{
+					if (cameraLineBuffer0[i] < 10)
+						cameraLineBuffer0[i] = 0;
+				}
 
 				/* calculate sum of all pixels */
 				for (uint32_t i = 0; i < CAMERA_LINE_SIZE; i++)
@@ -266,7 +280,12 @@ int main(void)
 			/* if last line of the frame was taken, print results */
 			if (line_number >= CAMERA_RES_Y)
 			{
-				printDataToMatlab(line_weight_horizontal, CAMERA_RES_Y, line_weight_vertical, CAMERA_RES_X);
+//				printDataToMatlab(line_weight_horizontal, CAMERA_RES_Y, line_weight_vertical, CAMERA_RES_X);
+
+				uint32_t cog_h = calculateCOG(line_weight_vertical, CAMERA_RES_X);
+				uint32_t cog_v = calculateCOG(line_weight_horizontal, CAMERA_RES_Y);
+
+				printCOGToMatlab(cog_h, cog_v);
 
 				/* reset values in vertical sums buffer */
 				for (uint32_t i = 0; i < CAMERA_LINE_SIZE; i++)

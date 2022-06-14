@@ -12,6 +12,9 @@ data_vertical = [];
 device = serialport("/dev/ttyACM0",115200);
 fprintf("Serial port opened\n");
 
+%skip first frame that may be corrupted
+ASCII_data = readline(device);
+
 while (1)
     % wait until there is data avilable on serial port
     ASCII_data = readline(device);
