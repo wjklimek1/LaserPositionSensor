@@ -210,6 +210,7 @@ int main(void)
   /* USER CODE BEGIN WHILE */
 	while (1)
 	{
+		#if CAMERA_BITS_PER_PX==(24)
 		/* wait until data in one of the buffers is ready to be processed */
 		if (process_line == true)
 		{
@@ -276,16 +277,86 @@ int main(void)
 			/* save sum of the currently processed line */
 			line_weight_horizontal[line_number] = line_sum;
 			line_number++;
+			#endif
+
+		#if CAMERA_BITS_PER_PX==(16)
+		/* wait until data in one of the buffers is ready to be processed */
+		if (process_line == true)
+		{
+			process_line = false; //reset flag that was set by DMA TC interrupt
+
+			uint32_t line_sum = 0;
+
+			/* if buffer 0 is accessed by DMA, do calculations on buffer 1 */
+			if (active_buffer == 0)
+			{
+				/* delete channels G and B */
+				for (uint32_t i = 0; i < CAMERA_LINE_SIZE; i+=2)
+				{
+					cameraLineBuffer1[i] = 0;
+					cameraLineBuffer1[i + 1] &= 0b11111000;
+				}
+
+				/* delete noise values */
+				for (uint32_t i = 0; i < CAMERA_LINE_SIZE; i++)
+				{
+					if (cameraLineBuffer1[i] < 3)
+						cameraLineBuffer1[i] = 0;
+				}
+
+				/* calculate sum of all pixels */
+				for (uint32_t i = 0; i < CAMERA_LINE_SIZE; i++)
+				{
+					/* horizontal */
+					line_sum += cameraLineBuffer1[i];
+
+					/* vertical */
+					line_weight_vertical[i / (CAMERA_BITS_PER_PX / 8)] += cameraLineBuffer1[i];
+				}
+			}
+
+			/* if buffer 1 is accessed by DMA, do calculations on buffer 0 */
+			if (active_buffer == 1)
+			{
+				/* delete channels G and B */
+				for (uint32_t i = 0; i < CAMERA_LINE_SIZE; i+=2)
+				{
+					cameraLineBuffer0[i] = 0;
+					cameraLineBuffer0[i + 1] &= 0b11111000;
+				}
+
+				/* delete noise values */
+				for (uint32_t i = 0; i < CAMERA_LINE_SIZE; i++)
+				{
+					if (cameraLineBuffer0[i] < 3)
+						cameraLineBuffer0[i] = 0;
+				}
+
+				/* calculate sum of all pixels */
+				for (uint32_t i = 0; i < CAMERA_LINE_SIZE; i++)
+				{
+					/* horizontal */
+					line_sum += cameraLineBuffer0[i];
+
+					/* vertical */
+					line_weight_vertical[i / (CAMERA_BITS_PER_PX / 8)] += cameraLineBuffer0[i];
+				}
+			}
+
+			/* save sum of the currently processed line */
+			line_weight_horizontal[line_number] = line_sum;
+			line_number++;
+			#endif
 
 			/* if last line of the frame was taken, print results */
 			if (line_number >= CAMERA_RES_Y)
 			{
-//				printDataToMatlab(line_weight_horizontal, CAMERA_RES_Y, line_weight_vertical, CAMERA_RES_X);
+				printDataToMatlab(line_weight_horizontal, CAMERA_RES_Y, line_weight_vertical, CAMERA_RES_X);
 
 				uint32_t cog_h = calculateCOG(line_weight_vertical, CAMERA_RES_X);
 				uint32_t cog_v = calculateCOG(line_weight_horizontal, CAMERA_RES_Y);
 
-				printCOGToMatlab(cog_h, cog_v);
+				//printCOGToMatlab(cog_h, cog_v);
 
 				/* reset values in vertical sums buffer */
 				for (uint32_t i = 0; i < CAMERA_LINE_SIZE; i++)
