@@ -2,6 +2,7 @@
 #define INC_LPS_DCMI_H_
 
 #include <stdbool.h>
+#include "LPS_ov5640_defines.h"
 #include "dcmi.h"
 
 
