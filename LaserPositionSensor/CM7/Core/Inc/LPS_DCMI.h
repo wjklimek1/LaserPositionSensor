@@ -5,6 +5,8 @@
 #include "LPS_ov5640_defines.h"
 #include "dcmi.h"
 
+#define RGB888_THRESHOLD (0)
+#define RGB565_THRESHOLD (0)
 
 #define LPS_COLOR_FORMAT     (OV5640_RGB888)
 #define LPS_RESOLUTION       (OV5640_R320x240)
