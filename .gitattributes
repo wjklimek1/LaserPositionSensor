@@ -1,5 +1,4 @@
-# Handling CR LF conflicts - default to Micro$oft standard
-* text eol=crlf
+* text=auto
 
 # Sources
 *.s     linguist-language=Assembly

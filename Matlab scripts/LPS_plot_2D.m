@@ -54,14 +54,14 @@ while (1)
     xlim([0, 320]);
     ylim([0, 240]);
 
-    if (length(cog_horizontal_array) == 30)
-        save("test_y=-3.0mm_rgb565_320x240.mat");
-        close(fig_handle);
-        fprintf("Stopping...\n");
-        device = [];
-        fprintf("Serial port closed\n");
-        return;
-    end
+%     if (length(cog_horizontal_array) == 30)
+%         save("test_y=-3.0mm_rgb565_320x240.mat");
+%         close(fig_handle);
+%         fprintf("Stopping...\n");
+%         device = [];
+%         fprintf("Serial port closed\n");
+%         return;
+%     end
 
     % if space was presses, take screenshot
     if (strcmp(keyPressed, "space"))
